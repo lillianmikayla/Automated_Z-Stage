@@ -1,0 +1,25 @@
+// Pin mapping (change if you want)
+const uint8_t STEP = 4;
+const uint8_t DIR  = 3;
+const uint8_t ENA  = 2;
+
+void setup() {
+  pinMode(STEP, OUTPUT);
+  pinMode(DIR, OUTPUT);
+  pinMode(ENA, OUTPUT);
+}
+
+void loop() {
+  // Toggle DIR and ENA slowly so a multimeter can see it
+  digitalWrite(DIR, !digitalRead(DIR));
+  digitalWrite(ENA, !digitalRead(ENA));
+
+  // Generate STEP pulses for 2 seconds
+  unsigned long t0 = millis();
+  while (millis() - t0 < 2000) {
+    digitalWrite(STEP, HIGH);
+    delayMicroseconds(10);   // pulse width
+    digitalWrite(STEP, LOW);
+    delayMicroseconds(2490); // ~200 Hz
+  }
+}
