@@ -1,0 +1,54 @@
+// CL5760T Closed Loop Stepper Driver — Arduino Mega 2560
+// Wiring:
+//   Pin 9  → PULS+    (PULS− → GND)
+//   Pin 8  → DIR+     (DIR−  → GND)
+//   Pin 7  → ENA+     (ENA−  → GND)
+
+#define PULSE_PIN   9
+#define DIR_PIN     8
+#define ENABLE_PIN  7
+
+// CL5760T: LOW on ENA+ enables the driver (opto off = enabled)
+#define ENABLE_ACTIVE LOW
+
+// Adjust to match driver's microstep setting based on dip switch (default is often 1600 steps/rev)
+#define STEPS_PER_REV 1600
+
+// Pulse width in microseconds — CL5760T minimum is ~2.5µs, 10µs is safe
+#define PULSE_WIDTH_US 10
+
+void setup() {
+  pinMode(PULSE_PIN,  OUTPUT);
+  pinMode(DIR_PIN,    OUTPUT);
+  pinMode(ENABLE_PIN, OUTPUT);
+
+  // Enable the driver
+  digitalWrite(ENABLE_PIN, ENABLE_ACTIVE);
+
+  // Small delay after enable before sending pulses
+  delay(100);
+}
+
+// Sends 'steps' pulses at the given speed (microseconds between pulses)
+// Direction: HIGH or LOW
+void moveStepper(int steps, int stepDelayUs, bool direction) {
+  digitalWrite(DIR_PIN, direction ? HIGH : LOW);
+  delayMicroseconds(5); // DIR setup time before pulsing
+
+  for (int i = 0; i < steps; i++) {
+    digitalWrite(PULSE_PIN, HIGH);
+    delayMicroseconds(PULSE_WIDTH_US);
+    digitalWrite(PULSE_PIN, LOW);
+    delayMicroseconds(stepDelayUs - PULSE_WIDTH_US);
+  }
+}
+
+void loop() {
+  // Spin forward 2 full revolutions at moderate speed (500µs between pulses)
+  moveStepper(STEPS_PER_REV * 2, 500, true);
+  delay(1000);
+
+  // Spin backward 2 full revolutions
+  moveStepper(STEPS_PER_REV * 2, 500, false);
+  delay(1000);
+}
