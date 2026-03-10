@@ -1,0 +1,72 @@
+// CL5760T Closed Loop Stepper Driver — Arduino Mega 2560
+// Wiring:
+//   Pin 9  → PULS+    (PULS− → GND)
+//   Pin 8  → DIR+     (DIR−  → GND)
+//   Pin 7  → ENA+     (ENA−  → GND)
+
+#define PULSE_PIN   9
+#define DIR_PIN     8
+#define ENABLE_PIN  7
+
+// CL5760T: LOW on ENA+ enables the driver (opto off = enabled)
+#define ENABLE_ACTIVE LOW
+
+// Adjust to match driver's microstep setting based on dip switch (default is often 1600 steps/rev)
+#define STEPS_PER_REV 5000
+#define MOVE_10MICRON 100
+#define STEP_DELAY 500
+#define MM_PER_REV 5.0 // moves 5mm per revolution 
+#define STEPS_PER_MM 1000 // (STEPS_PER_REV / MM_PER_REV)
+
+// Pulse width in microseconds — CL5760T minimum is ~2.5µs, 10µs is safe
+#define PULSE_WIDTH_US 10
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(PULSE_PIN,  OUTPUT);
+  pinMode(DIR_PIN,    OUTPUT);
+  pinMode(ENABLE_PIN, OUTPUT);
+
+  // Enable the driver
+  digitalWrite(ENABLE_PIN, ENABLE_ACTIVE);
+
+  // Small delay after enable before sending pulses
+  delay(100);
+}
+
+// Sends 'steps' pulses at the given speed (microseconds between pulses)
+// Direction: HIGH or LOW
+void moveStepper(long steps, int stepDelayUs, bool direction) {
+
+  digitalWrite(DIR_PIN, direction ? HIGH : LOW);
+  delayMicroseconds(5); // DIR setup time before pulsing
+
+  for (int i = 0; i < steps; i++) {
+    digitalWrite(PULSE_PIN, HIGH);
+    delayMicroseconds(PULSE_WIDTH_US);
+    digitalWrite(PULSE_PIN, LOW);
+    delayMicroseconds(stepDelayUs - PULSE_WIDTH_US);
+  }
+}
+
+// Move by a specified distance in millimeters
+void moveMM(float distanceMM, int stepDelayUs, bool direction) {
+  long stepsToMove = (long)(distanceMM * STEPS_PER_MM + 0.5); // round to nearest step
+  moveStepper(stepsToMove, stepDelayUs, direction);
+}
+
+void loop() {
+  // Spin forward 1 full revolutions at moderate speed (500µs between pulses)
+  // moveStepper(5000, STEP_DELAY, true);
+  // delay(1000);
+
+  // Spin backward 1 full revolutions
+  // moveStepper(MOVE_10MICRON, 500, false);
+  // delay(1000);
+
+  moveMM(2, STEP_DELAY, true);
+  delay (1000);
+
+  moveMM(2, STEP_DELAY, false);
+  delay (1000);
+}
