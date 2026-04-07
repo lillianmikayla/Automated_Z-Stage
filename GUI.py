@@ -23,6 +23,7 @@ raiseAmountVar = tk.StringVar(value="0.01")
 homedVar = tk.StringVar(value="Homed status")
 faultVar = tk.StringVar(value="None")
 connVar = tk.StringVar(value="Disconnected")
+portVar = tk.StringVar()
 
 
 
@@ -125,22 +126,16 @@ def send_cmd(cmd):
 
 
 
-def find_serial_port():
+def refresh_ports():
     ports = serial.tools.list_ports.comports()
+    port_list = [f"{p.device} - {p.description}" for p in ports]
 
-    for port in ports:
-        #print ports so you can see what is detected
-        print("Found port:", port.device, port.description)
+    portDropdown["values"] = port_list
 
-        #common identifiers for Arduino / USB serial 
-        if "Arduino" in port.description or \
-           "usbmodem" in port.device or \
-           "usbserial" in port.device or \
-           "COM" in port.device:
-
-            return port.device
-
-    return None       
+    if port_list:
+        portDropdown.current(0)
+    else:
+        portVar.set("")      
 
 
 
@@ -150,11 +145,11 @@ def on_connect_toggle():
 
     if ser is None:
         try:
-            port = find_serial_port()
-
-            if port is None:
-                moveVar.set("no serial device")
+            selection = portVar.get()
+            if not selection:
+                moveVar.set("no port selected")
                 return
+            port = selection.split(" - ")[0]
 
             ser = serial.Serial(port, BAUD_RATE, timeout=0.1)
             print("Connected to", port)
@@ -213,6 +208,7 @@ def on_stop():
 
 
 #UI LAYOUT
+
 btnConnect = ttk.Button(root, text="Connect/Disconnect", command=on_connect_toggle)
 btnHome = ttk.Button(root, text="Home", command=on_home)
 btnLower = ttk.Button(root, text="Lower Z-stage", command=on_lower)
@@ -220,21 +216,34 @@ btnReport = ttk.Button(root, text="Report Position", command=on_report)
 btnStop = ttk.Button(root, text="STOP", command=on_stop)
 btnRaise = ttk.Button(root, text="Raise Z-stage", command=on_raise)
 
-btnConnect.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=8, pady=8)
-btnHome.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=8, pady=8)
-btnLower.grid(row=1, column=1, sticky="nsew", padx=8, pady=8)
-btnRaise.grid(row=1, column=0, sticky="nsew", padx=8, pady=8)
+btnConnect.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=8, pady=8)
+btnHome.grid(row=4, column=0, columnspan=2, sticky="nsew", padx=8, pady=8)
+btnLower.grid(row=3, column=1, sticky="nsew", padx=8, pady=8)
+btnRaise.grid(row=3, column=0, sticky="nsew", padx=8, pady=8)
 
-tk.Label(root, text="Raise amount (mm):").grid(row=3, column=0, columnspan=2)
-ttk.Entry(root, textvariable=raiseAmountVar).grid(row=4, column=0, columnspan=2, sticky="ew", padx=8, pady=(0,8))
+#drop down menu
 
-tk.Label(root, text="Lower amount (mm):").grid(row=5, column=0, columnspan=2)
-ttk.Entry(root, textvariable=lowerAmountVar).grid(row=6, column=0, columnspan=2, sticky="ew", padx=8, pady=(0,8))
+tk.Label(root, text="Serial Port:").grid(row=0, column=0, padx=8, pady=4)
+
+portDropdown = ttk.Combobox(root, textvariable=portVar, state="readonly")
+portDropdown.grid(row=0, column=1, padx=8, pady=4, sticky="ew")
+
+btnRefreshPorts = ttk.Button(root, text="Refresh Ports", command=refresh_ports)
+btnRefreshPorts.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=8, pady=4)
+
+
+tk.Label(root, text="Raise amount (mm):").grid(row=5, column=0, columnspan=2)
+ttk.Entry(root, textvariable=raiseAmountVar).grid(row=6, column=0, columnspan=2, sticky="ew", padx=8, pady=(0,8))
+
+tk.Label(root, text="Lower amount (mm):").grid(row=7, column=0, columnspan=2)
+ttk.Entry(root, textvariable=lowerAmountVar).grid(row=8, column=0, columnspan=2, sticky="ew", padx=8, pady=(0,8))
 
 #status indicator stuff below the functions
 
+
+
 statusFrame = ttk.LabelFrame(root, text="System Status")
-statusFrame.grid(row=7, column=0, columnspan=2, sticky="nsew", padx=8, pady=8)
+statusFrame.grid(row=9, column=0, columnspan=2, sticky="nsew", padx=8, pady=8)
 
 #connection status
 tk.Label(statusFrame, text="Connection:").grid(row=0, column=0, sticky="w", padx=4, pady=2)
@@ -262,4 +271,5 @@ root.grid_columnconfigure(1, weight=1)
 
 update_ui()
 root.after(READ_INTERVAL_MS, read_serial)
+refresh_ports()
 root.mainloop()
