@@ -15,8 +15,8 @@
 #define DIR_PIN       8
 #define ENABLE_PIN    7
 #define ALM_PIN       5
-#define ENC_A_PIN     3   // A+ from motor Y-split
-#define ENC_B_PIN     2   // B+ from motor Y-split
+#define ENC_A_PIN     3   
+#define ENC_B_PIN     2  
 
 #define STEPS_PER_REV     5000
 #define MM_PER_REV        20.0
