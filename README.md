@@ -10,4 +10,6 @@ CL57T.pdf - Datasheet for closed loop motor driver.
 Wiring Diagram for Closed Loop Stepper Motor.pdf - Wiring diagram for motor to motor driver and power supply.  
 
 How to run:  
-Download GUI.exe and move onto desktop, connect to microcontroller via USB Serial. Ensure power supply is on.
+Download GUI.exe and move onto desktop, connect to microcontroller via USB Serial. Ensure power supply is on.  
+
+Note: If alarms are detected on GUI, refer to CL57T.pdf data sheet for more information on the malfunction.  
