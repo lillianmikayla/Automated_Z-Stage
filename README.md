@@ -25,6 +25,8 @@ This project implements an automated Z-axis stage controlled through a graphical
   Datasheet for the motor driver
 * **Wiring Diagram for Closed Loop Stepper Motor.pdf**
   Complete wiring diagram for system connections
+* **Motor and Encoder Wiring Details.pdf**
+  Datasheet for wiring color
 
 ---
 
