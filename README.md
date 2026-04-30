@@ -21,7 +21,7 @@ This project implements an automated Z-axis stage controlled through a graphical
   Contains motor control logic and pin mappings
 * **NEMA23_Full_Datasheet.pdf**
   Datasheet for the closed-loop stepper motor
-* **CL57T.pdf**
+* **CL57T_V4.0.pdf**
   Datasheet for the motor driver
 * **Wiring Diagram for Closed Loop Stepper Motor.pdf**
   Complete wiring diagram for system connections
